@@ -84,6 +84,6 @@ namespace WindowsFormsApp1
 
             pictureBox1.Location = new Point(newX, pictureBox1.Top);
 
-        }//hovno
+        }//rit
     }
 }
