@@ -12,12 +12,18 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
+        private Timer enemySpawnTimer;
+        private List<PictureBox> bullets = new List<PictureBox>();
+        private List<PictureBox> enemies = new List<PictureBox>();
+        
         public Form1()
         {
             InitializeComponent();
             this.KeyPreview = true;
             this.KeyDown += Form1_KeyDown;
             this.MouseDown += Form1_MouseDown;
+            
+
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
@@ -33,7 +39,8 @@ namespace WindowsFormsApp1
                     pictureBox1.Top - bullet.Height
                 );
 
-                this.Controls.Add(bullet); 
+                this.Controls.Add(bullet);
+                bullets.Add(bullet);
                 bullet.BringToFront();
 
                 Timer bulletTimer = new Timer();
@@ -41,6 +48,23 @@ namespace WindowsFormsApp1
                 bulletTimer.Tick += (s, ev) =>
                 {
                     bullet.Top -= 10;
+
+                    foreach (var enemy in enemies.ToList())
+                    {
+                        if (bullet.Bounds.IntersectsWith(enemy.Bounds))
+                        {
+                            this.Controls.Remove(bullet);
+                            this.Controls.Remove(enemy);
+                            bullets.Remove(bullet);
+                            enemies.Remove(enemy);
+                            bullet.Dispose();
+                            enemy.Dispose();
+
+                            bulletTimer.Stop();
+                            return;
+                        }
+                    }
+
                     if (bullet.Top < 0)
                     {
                         bulletTimer.Stop();
@@ -54,7 +78,75 @@ namespace WindowsFormsApp1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            enemySpawnTimer = new Timer();
+            enemySpawnTimer.Interval = 3000; 
+            enemySpawnTimer.Tick += EnemySpawnTimer_Tick;
+            enemySpawnTimer.Start();
+        }
+        private void EnemySpawnTimer_Tick(object sender, EventArgs e)
+        {
+            PictureBox enemy = new PictureBox();
+            enemy.Size = pictureBox2.Size;
+            enemy.Image = pictureBox2.Image;
+            enemy.SizeMode = pictureBox1.SizeMode;
+            enemy.BackColor = Color.Transparent;
 
+            Random rand = new Random();
+            int x = rand.Next(0, ClientSize.Width - enemy.Width);
+            enemy.Location = new Point(x, 0);
+
+            this.Controls.Add(enemy);
+            enemies.Add(enemy);
+            enemy.BringToFront();
+
+            Timer enemyMoveTimer = new Timer();
+            enemyMoveTimer.Interval = 30;
+            enemyMoveTimer.Tick += (s, ev) =>
+            {
+                enemy.Top += 5;
+
+                if (enemy.Top > ClientSize.Height)
+                {
+                    enemyMoveTimer.Stop();
+                    this.Controls.Remove(enemy);
+                    enemy.Dispose();
+                }
+            };
+
+            enemyMoveTimer.Interval = 20;
+            enemyMoveTimer.Tick += (s, ev) =>
+            {
+                enemy.Top += 3;
+
+                // 💥 Kolízia s hráčom
+                if (enemy.Bounds.IntersectsWith(pictureBox1.Bounds))
+                {
+                    enemyMoveTimer.Stop();
+                    this.Controls.Remove(enemy);
+                    enemies.Remove(enemy);
+                    enemy.Dispose();
+
+                    MessageBox.Show("Game Over!");
+                    Environment.Exit(0);
+                    return;
+                }
+
+                // 📉 Nepriateľ vyšiel pod obrazovku
+                if (enemy.Top > ClientSize.Height)
+                {
+                    enemyMoveTimer.Stop();
+                    this.Controls.Remove(enemy);
+                    enemies.Remove(enemy);
+                    enemy.Dispose();
+
+                    MessageBox.Show("Game Over!");
+                    Environment.Exit(0);
+                    return;
+                }
+            };
+            enemyMoveTimer.Start(); 
+
+            
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -62,6 +154,8 @@ namespace WindowsFormsApp1
             int y = (ClientSize.Height - pictureBox1.Height);
             int x = (ClientSize.Width - pictureBox1.Width) / 2;
             pictureBox1.Location = new Point(x, y);
+
+            pictureBox2.Visible = false;
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -87,3 +181,4 @@ namespace WindowsFormsApp1
         }//commit
     }
 }
+
