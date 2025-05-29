@@ -12,3 +12,4 @@ MaximizeBox = False
 
 spaceship:
 size - 73; 80
+![alt text](enemy_1.png) ![alt text](enemy_2.png) ![alt text](enemy_3.png)
