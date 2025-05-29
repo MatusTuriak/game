@@ -15,7 +15,32 @@ namespace WindowsFormsApp1
         private Timer enemySpawnTimer;
         private List<PictureBox> bullets = new List<PictureBox>();
         private List<PictureBox> enemies = new List<PictureBox>();
-        
+
+        int enemiesSpawned = 0;//
+        int maxEnemies = 5;//
+        int minEnemies = 5;//
+        private void StopGame()
+        {
+            enemySpawnTimer.Stop();
+
+            foreach (var enemy in enemies.ToList())
+            {
+                this.Controls.Remove(enemy);
+                enemies.Remove(enemy);
+                enemy.Dispose();
+            }
+
+            foreach (var bullet in bullets.ToList())
+            {
+                this.Controls.Remove(bullet);
+                bullets.Remove(bullet);
+                bullet.Dispose();
+            }
+
+            MessageBox.Show("Game Over!");
+            Environment.Exit(0);
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -85,6 +110,14 @@ namespace WindowsFormsApp1
         }
         private void EnemySpawnTimer_Tick(object sender, EventArgs e)
         {
+            if (enemiesSpawned >= maxEnemies)
+            {
+                enemySpawnTimer.Stop();
+                return;
+            }//
+
+            enemiesSpawned++;//
+
             PictureBox enemy = new PictureBox();
             enemy.Size = pictureBox2.Size;
             enemy.Image = pictureBox2.Image;
@@ -100,19 +133,6 @@ namespace WindowsFormsApp1
             enemy.BringToFront();
 
             Timer enemyMoveTimer = new Timer();
-            enemyMoveTimer.Interval = 30;
-            enemyMoveTimer.Tick += (s, ev) =>
-            {
-                enemy.Top += 5;
-
-                if (enemy.Top > ClientSize.Height)
-                {
-                    enemyMoveTimer.Stop();
-                    this.Controls.Remove(enemy);
-                    enemy.Dispose();
-                }
-            };
-
             enemyMoveTimer.Interval = 20;
             enemyMoveTimer.Tick += (s, ev) =>
             {
@@ -121,26 +141,14 @@ namespace WindowsFormsApp1
                 // 💥 Kolízia s hráčom
                 if (enemy.Bounds.IntersectsWith(pictureBox1.Bounds))
                 {
-                    enemyMoveTimer.Stop();
-                    this.Controls.Remove(enemy);
-                    enemies.Remove(enemy);
-                    enemy.Dispose();
-
-                    MessageBox.Show("Game Over!");
-                    Environment.Exit(0);
+                    StopGame();
                     return;
                 }
 
                 // 📉 Nepriateľ vyšiel pod obrazovku
                 if (enemy.Top > ClientSize.Height)
                 {
-                    enemyMoveTimer.Stop();
-                    this.Controls.Remove(enemy);
-                    enemies.Remove(enemy);
-                    enemy.Dispose();
-
-                    MessageBox.Show("Game Over!");
-                    Environment.Exit(0);
+                    StopGame();
                     return;
                 }
             };
