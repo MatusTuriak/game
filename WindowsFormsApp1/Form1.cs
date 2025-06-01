@@ -22,9 +22,15 @@ namespace WindowsFormsApp1
         private int enemiesdestroyed = 0;
         private const int maxenemies = 10;
 
+        private bool gameOver = false;
+
         private void StopGame()
         {
-            enemySpawnTimer.Stop();
+            if (gameOver) return;
+            gameOver = true;
+
+            enemySpawnTimer?.Stop();
+            enemyMoveTimer?.Stop();
 
             foreach (var enemy in enemies.ToList())
             {
