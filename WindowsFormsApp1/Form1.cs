@@ -13,12 +13,15 @@ namespace WindowsFormsApp1
     public partial class Form1 : Form
     {
         private Timer enemySpawnTimer;
+        private Timer enemyMoveTimer;
         private List<PictureBox> bullets = new List<PictureBox>();
         private List<PictureBox> enemies = new List<PictureBox>();
+        private Random rand = new Random();
 
-        int enemiesSpawned = 0;//
-        int maxEnemies = 5;//
-        int minEnemies = 5;//
+        private int enemiesspawned = 0;
+        private int enemiesdestroyed = 0;
+        private const int maxenemies = 10;
+
         private void StopGame()
         {
             enemySpawnTimer.Stop();
@@ -86,6 +89,15 @@ namespace WindowsFormsApp1
                             enemy.Dispose();
 
                             bulletTimer.Stop();
+
+                            enemiesdestroyed++;
+
+                            if (enemiesdestroyed == maxenemies)
+                            {
+                                MessageBox.Show("Win!");
+                                Environment.Exit(0);
+                            }
+
                             return;
                         }
                     }
@@ -107,16 +119,40 @@ namespace WindowsFormsApp1
             enemySpawnTimer.Interval = 3000; 
             enemySpawnTimer.Tick += EnemySpawnTimer_Tick;
             enemySpawnTimer.Start();
+            enemyMoveTimer = new Timer();
+            enemyMoveTimer.Interval = 20;
+            enemyMoveTimer.Tick += EnemyMoveTimer_Tick;
+            enemyMoveTimer.Start();
+
+
+        }
+
+        private void EnemyMoveTimer_Tick(object sender, EventArgs e)
+        {
+            foreach (var enemy in enemies.ToList())
+            {
+                enemy.Top += 3;
+
+                if (enemy.Bounds.IntersectsWith(pictureBox1.Bounds))
+                {
+                    StopGame();
+                    return;
+                }
+
+                if (enemy.Top > ClientSize.Height)
+                {
+                    StopGame();
+                    return;
+                }
+            }
         }
         private void EnemySpawnTimer_Tick(object sender, EventArgs e)
         {
-            if (enemiesSpawned >= maxEnemies)
+            if (enemiesdestroyed >= maxenemies)
             {
                 enemySpawnTimer.Stop();
-                return;
-            }//
-
-            enemiesSpawned++;//
+                return ;
+            }
 
             PictureBox enemy = new PictureBox();
             enemy.Size = pictureBox2.Size;
@@ -132,29 +168,7 @@ namespace WindowsFormsApp1
             enemies.Add(enemy);
             enemy.BringToFront();
 
-            Timer enemyMoveTimer = new Timer();
-            enemyMoveTimer.Interval = 20;
-            enemyMoveTimer.Tick += (s, ev) =>
-            {
-                enemy.Top += 3;
-
-                // 💥 Kolízia s hráčom
-                if (enemy.Bounds.IntersectsWith(pictureBox1.Bounds))
-                {
-                    StopGame();
-                    return;
-                }
-
-                // 📉 Nepriateľ vyšiel pod obrazovku
-                if (enemy.Top > ClientSize.Height)
-                {
-                    StopGame();
-                    return;
-                }
-            };
-            enemyMoveTimer.Start(); 
-
-            
+            enemiesspawned++;
         }
 
         private void Form1_Shown(object sender, EventArgs e)
