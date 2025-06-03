@@ -20,7 +20,7 @@ namespace WindowsFormsApp1
 
         private int enemiesspawned = 0;
         private int enemiesdestroyed = 0;
-        private const int maxenemies = 10;
+        private const int maxenemies = 20;
 
         private bool gameOver = false;
 
@@ -56,9 +56,15 @@ namespace WindowsFormsApp1
             this.KeyPreview = true;
             this.KeyDown += Form1_KeyDown;
             this.MouseDown += Form1_MouseDown;
-            
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint |
+                  ControlStyles.UserPaint |
+                  ControlStyles.OptimizedDoubleBuffer, true);
+            this.UpdateStyles();
+
 
         }
+        
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -100,6 +106,9 @@ namespace WindowsFormsApp1
 
                             if (enemiesdestroyed == maxenemies)
                             {
+                                gameOver = true;
+                                enemySpawnTimer?.Stop();
+                                enemyMoveTimer?.Stop();
                                 MessageBox.Show("Win!");
                                 Environment.Exit(0);
                             }
@@ -122,11 +131,11 @@ namespace WindowsFormsApp1
         private void Form1_Load(object sender, EventArgs e)
         {
             enemySpawnTimer = new Timer();
-            enemySpawnTimer.Interval = 3000; 
+            enemySpawnTimer.Interval = 1600; 
             enemySpawnTimer.Tick += EnemySpawnTimer_Tick;
             enemySpawnTimer.Start();
             enemyMoveTimer = new Timer();
-            enemyMoveTimer.Interval = 20;
+            enemyMoveTimer.Interval = 40;
             enemyMoveTimer.Tick += EnemyMoveTimer_Tick;
             enemyMoveTimer.Start();
 
@@ -154,19 +163,18 @@ namespace WindowsFormsApp1
         }
         private void EnemySpawnTimer_Tick(object sender, EventArgs e)
         {
-            if (enemiesdestroyed >= maxenemies)
+            if (gameOver || enemiesspawned >= maxenemies)
             {
                 enemySpawnTimer.Stop();
-                return ;
+                return;
             }
 
             PictureBox enemy = new PictureBox();
             enemy.Size = pictureBox2.Size;
             enemy.Image = pictureBox2.Image;
-            enemy.SizeMode = pictureBox1.SizeMode;
+            enemy.SizeMode = pictureBox2.SizeMode;
             enemy.BackColor = Color.Transparent;
 
-            Random rand = new Random();
             int x = rand.Next(0, ClientSize.Width - enemy.Width);
             enemy.Location = new Point(x, 0);
 

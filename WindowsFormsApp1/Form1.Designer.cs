@@ -59,12 +59,12 @@
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(303, 12);
+            this.pictureBox2.Image = global::WindowsFormsApp1.Properties.Resources.enemy_2;
+            this.pictureBox2.Location = new System.Drawing.Point(300, 60);
             this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(100, 103);
+            this.pictureBox2.Size = new System.Drawing.Size(103, 106);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 2;
+            this.pictureBox2.TabIndex = 3;
             this.pictureBox2.TabStop = false;
             // 
             // Form1
